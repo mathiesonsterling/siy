@@ -25,6 +25,3 @@ class Connection:
         if len(updating_sources) == 0:
             return None
         return min(updating_sources)
-
-    def create_source_dag(self):
-        raise NotImplementedError()
