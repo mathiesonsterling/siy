@@ -1,7 +1,13 @@
 # siy
-A system for quickly creating data pipelines\
+"See ee" - A turnkey solution for Data Engineering, that allows an organization to quickly get data processing, with long term maintenance
+and augmentation being done with just domain experts and data scientist.  Unlike many solutions, this one can integrate with 
+any technology that can be triggered by a Docker container.
 
-Siy means "si y", or Spanish for "yes and".  The basic philosoophy of this system is that data should be placed in a central lake, processed there, and the results returned to that same lake.  Similar to how inmprov performers always just add new material, the data lake keeps all artifacts, but also makes them available for future processes to build on.  
+Siy means "si y", or Spanish for "yes and".  The basic philosophy of this system is that data should be placed in a 
+central lake, processed there, and the results returned to that same lake.  This allows modification and evolution of 
+data pipelines over time, instead of having to constantly reconfigure and redevelop data pipelines that are used to 
+feed ML and other processes.  Meanwhile, making this data available to the outside world is done easily through configurable Destinations,
+which can automatically generate such common methods as REST API, GraphQL, Snowflake, and Looker dashboards out of the box.
 
 This allows modification and evolution of data pipelines over time, instead of having to constantly reconfigure and redevelop data pipelines that are used to feed MLP and other processes.
 

@@ -1,12 +1,32 @@
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Tuple
 
 from airflow import DAG
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
 from airflow.operators.dummy import DummyOperator
+from airflow.operators.python import PythonOperator
 from kubernetes.client.models.v1_env_var import V1EnvVar
 
-from siy.entities import Connection, BaseDestination
-from siy.value_items import DockerTask
+from siy.entities import Connection, BaseDataLake
+from siy.value_items import DockerTask, TableProcessedMessage, BigQueryDataTable
+from siy.repositories import BaseTableProcessedMessageRepository
+
+
+def notify_destination_of_table_processed(*args, **kwargs):
+    data_lake_type = kwargs["data_lake_type"]
+    # todo construct our repo here
+    repo: BaseTableProcessedMessageRepository = None
+    table_strings = str(kwargs["tables"]).split(",")
+    destination_name = kwargs["destination_name"]
+
+    if data_lake_type == "BigQueryDataLake":
+        tables = [BigQueryDataTable.parse(ts) for ts in table_strings]
+        for table in tables:
+            message = TableProcessedMessage(
+                table=table,
+                destination_name=destination_name,
+                handled=False
+            )
+            repo.add(message=message)
 
 
 class AirflowWorkflowFactory:
@@ -16,43 +36,37 @@ class AirflowWorkflowFactory:
     To use, create a single DAG an iterate over the connection with the create_dags method.
     Load each into the global namespace and you'll be all set!
     """
-    def __init__(self, use_gke: bool = False):
+    def __init__(self, data_lake: BaseDataLake, use_gke: bool = False, namespace: str = "default"):
         self.use_gke = use_gke
+        self.namespace = namespace
+        self.data_lake = data_lake
 
     def create_dags(self, connections: Iterable[Connection]) -> Iterable[DAG]:
-        universal_destinations = []
+        all_sources = [source for con in connections for source in con.sources]
+        all_tables = {t for source in all_sources for t in source.produced_data_tables}
 
         # create one dag per connection at least
         for c in connections:
-            connection_dag = self._create_connection_dag(c)
+            connection_dag, sources_done = self._create_connection_dag(c)
 
-            # add tasks for the destination - this will depend on if the connection needs all tables or not!
-            for destination in c.destinations:
-                if destination.processes_all_connections:
-                    universal_destinations.append(destination)
-                else:
-                    self._add_connection_destination(destination=destination, dag=connection_dag)
+            for d in c.destinations:
+                kwargs = {
+                    "destination_name": d.name,
+                    "tables": ",".join([str(t1) for t1 in all_tables]),
+                    "data_lake_type": type(self.data_lake)
+                }
+                notify_op = PythonOperator(
+                    python_callable=notify_destination_of_table_processed,
+                    op_kwargs=kwargs,
+                    dag=connection_dag
+                )
+                sources_done.set_downstream(notify_op)
+
             yield connection_dag
 
-        for destination in universal_destinations:
-            yield self._create_universal_destination_dag(destination)
+    # we need to add destination trigger tasks - these should NOT block, but should be part of the DAG
 
-    def _create_universal_destination_dag(self, destination: BaseDestination) -> DAG:
-        dag = DAG(
-            dag_id=f"destination_{destination.name}",
-            schedule_interval= destination.update_frequency if destination.update_frequency else "@once"
-        )
-
-        previous_task: Optional[KubernetesPodOperator] = None
-        for task in destination.docker_tasks:
-            airflow_task = self._make_kubernetes_task_for_docker_image(task)
-            if previous_task:
-                previous_task.set_downstream(airflow_task)
-            previous_task = airflow_task
-
-        return dag
-
-    def _create_connection_dag(self, connection: Connection) -> DAG:
+    def _create_connection_dag(self, connection: Connection) -> Tuple[DAG, DummyOperator]:
         dag = DAG(
             dag_id=f"generated_{self._clean_name_for_airflow(connection.name)}",
             schedule_interval= connection.overall_update_frequency if connection.overall_update_frequency else "@once"
@@ -96,15 +110,7 @@ class AirflowWorkflowFactory:
         for t in end_tasks:
             t.set_downstream(sources_done)
 
-        return dag
-
-    def _add_connection_destination(self, destination: BaseDestination, dag: DAG):
-        previous_task: Optional[KubernetesPodOperator] = None
-        for t in destination.docker_tasks:
-            airflow_task = self._make_kubernetes_task_for_docker_image(t)
-            dag.add_task(airflow_task)
-            if previous_task:
-                previous_task.set_downstream(airflow_task)
+        return dag, sources_done
 
     @staticmethod
     def _clean_name_for_airflow(name: str) -> str:
@@ -118,5 +124,6 @@ class AirflowWorkflowFactory:
             return KubernetesPodOperator(
                 image=str(docker_task.image_location),
                 name=docker_task.name,
-                env_vars=env_vars
+                env_vars=env_vars,
+                namespace=self.namespace
             )
