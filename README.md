@@ -9,6 +9,8 @@ data pipelines over time, instead of having to constantly reconfigure and redeve
 feed ML and other processes.  Meanwhile, making this data available to the outside world is done easily through configurable Destinations,
 which can automatically generate such common methods as REST API, GraphQL, Snowflake, and Looker dashboards out of the box.
 
+This allows modification and evolution of data pipelines over time, instead of having to constantly reconfigure and redevelop data pipelines that are used to feed MLP and other processes.
+
 #Usage
 ## Platform choice
 You'll need to pick out your cloud provider, sources, and the means of delivering data to your customer (Destination)
