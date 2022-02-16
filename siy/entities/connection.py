@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from siy.entities.sources.base_source import BaseSource
 from siy.entities.destinations.base_destination import BaseDestination
-from siy.value_items import DataTable
+from siy.value_items import BaseDataTable
 
 
 @dataclass(eq=True, frozen=True)
@@ -14,7 +14,7 @@ class Connection:
     destinations: Iterable[BaseDestination] = field(default_factory=list)
 
     @property
-    def produced_tables(self) -> Iterable[DataTable]:
+    def produced_tables(self) -> Iterable[BaseDataTable]:
         for s in self.sources:
             yield from s.produced_data_tables
 
