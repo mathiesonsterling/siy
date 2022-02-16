@@ -30,4 +30,5 @@ Sources are any mechanism which creates or brings in data.  Extending these is p
 - Meltano
 - dbt - https://www.getdbt.com/.  Used to enable data analysts and scientists to create new models with SQL
 - Spark - https://spark.apache.org/
+- Custom Docker Image - arbitrary code that runs in a docker image.  The user will need to tell the system which tables will be created here
 
