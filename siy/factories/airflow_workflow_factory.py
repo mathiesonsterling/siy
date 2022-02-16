@@ -3,12 +3,19 @@ from typing import Iterable, Optional
 from airflow import DAG
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
 from airflow.operators.dummy import DummyOperator
+from kubernetes.client.models.v1_env_var import V1EnvVar
 
 from siy.entities import Connection, BaseDestination
 from siy.value_items import DockerTask
 
 
 class AirflowWorkflowFactory:
+    """
+    Main entry point when airflow is the main orchestrator used
+
+    To use, create a single DAG an iterate over the connection with the create_dags method.
+    Load each into the global namespace and you'll be all set!
+    """
     def __init__(self, use_gke: bool = False):
         self.use_gke = use_gke
 
@@ -103,9 +110,13 @@ class AirflowWorkflowFactory:
     def _clean_name_for_airflow(name: str) -> str:
         return name.lower().replace("-", "_")
 
-    def _make_kubernetes_task_for_docker_image(self, image: DockerTask) -> KubernetesPodOperator:
+    def _make_kubernetes_task_for_docker_image(self, docker_task: DockerTask) -> KubernetesPodOperator:
         if self.use_gke:
-            pass
+            raise NotImplementedError()
         else:
-            pass
-        raise NotImplementedError()
+            env_vars = [V1EnvVar(name=key, value=docker_task.env_vars[key]) for key in docker_task.env_vars]
+            return KubernetesPodOperator(
+                image=str(docker_task.image_location),
+                name=docker_task.name,
+                env_vars=env_vars
+            )
