@@ -6,26 +6,17 @@ from siy.value_items import BaseDataTable, DockerTask
 
 
 class BaseDestination(ABC):
+    """
+    A method to make data available to the outside world
+    Note that these should work async - while connections will notify them of pending updates,
+    the choice of how and when to update the output is up to the destination alone!
+    """
     def __init__(self, name: str):
         self.name = name
 
     @abstractmethod
     def export_tables(self, tables: Iterable[BaseDataTable]) -> None:
         # note this works on tables, not connections, as some destinations might requires ALL connections at once!
-        raise NotImplementedError()
-
-    @abstractmethod
-    @property
-    def processes_all_connections(self) -> bool:
-        """
-        If true, this destination wants to take all tables in a single gulp, so it can make a larger answer
-        :return:
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    @property
-    def docker_tasks(self) -> Iterable[DockerTask]:
         raise NotImplementedError()
 
     @property

@@ -5,8 +5,17 @@ from siy.value_items import DockerTask, BaseDataTable, URL, PublishedState
 
 
 class CustomDockerImageSource(BaseSource):
-    def __init__(self, name: str, docker_task: DockerTask, produced_tables: Iterable[BaseDataTable],
-                 state: PublishedState = PublishedState.DEVELOPMENT, depends_on: Iterable[BaseSource] = None):
+    """
+    Allows us to run any image in the repository
+    """
+    def __init__(
+        self,
+        name: str,
+        docker_task: DockerTask,
+        produced_tables: Iterable[BaseDataTable],
+        state: PublishedState = PublishedState.DEVELOPMENT,
+        depends_on: Iterable[BaseSource] = None
+    ):
         super().__init__(name=name, state=state, depends_on=depends_on)
         self.docker_task = docker_task
         self._produced_data_tables = produced_tables

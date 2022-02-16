@@ -3,15 +3,20 @@ from typing import Iterable, Optional
 from datetime import timedelta
 
 from siy.value_items import BaseDataTable, DockerTask, PublishedState
+from siy.entities.data_lakes import BaseDataLake
 
 
 class BaseSource(ABC):
     """
     Anything that adds data to the data lake, regardless of if it's an internal or external source, is a Source
     """
-    def __init__(self, name: str,
-                 state: PublishedState = PublishedState.DEVELOPMENT, depends_on: Iterable["BaseSource"] = None):
+    def __init__(self,
+                 name: str,
+                 data_lake: BaseDataLake,
+                 state: PublishedState = PublishedState.DEVELOPMENT,
+                 depends_on: Iterable["BaseSource"] = None):
         self.name = name
+        self.data_lake = data_lake
 
         if not depends_on:
             depends_on = []
@@ -19,8 +24,8 @@ class BaseSource(ABC):
 
         self._state = state
 
-    @abstractmethod
     @property
+    @abstractmethod
     def produced_data_tables(self) -> Iterable[BaseDataTable]:
         raise NotImplementedError()
 
