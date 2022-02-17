@@ -16,9 +16,9 @@ class DBTSource(BaseSource):
                  dbt_model_repo: URL,
                  end_models: Iterable[str],
                  state: PublishedState = PublishedState.DEVELOPMENT,
-                 depends_on: Iterable["BaseSource"] = None
+                 depends_on_names: Iterable[str] = None
     ):
-        super().__init__(state=state, depends_on=depends_on, name=name, data_lake=data_lake)
+        super().__init__(state=state, depends_on=depends_on_names, name=name, data_lake=data_lake)
         self.dbt_image_loc = dbt_image_loc
         self.dbt_model_repo = dbt_model_repo
         self.end_models = end_models
@@ -58,5 +58,6 @@ class DBTSource(BaseSource):
             "dbt_model_repo": str(self.dbt_model_repo),
             "end_models": list(self.end_models),
             "state": str(self.state),
-            "depends_on": [s.name for s in self.depends_on]
+            "depends_on": [s.name for s in self.depends_on],
+            "type": type(self)
         }

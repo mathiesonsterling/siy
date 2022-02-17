@@ -8,16 +8,6 @@ class CustomDockerImageSource(BaseSource):
     """
     Allows us to run any image in the repository
     """
-
-    def to_dict(self) -> Dict[str, Union[str, Dict[str, str]]]:
-        return {
-            "name": self.name,
-            "docker_task": self.docker_task.to_dict(),
-            "produced_tables": [t.to_dict() for t in self.produced_data_tables],
-            "state": str(self.state),
-            "depends_on": [s.name for s in self.depends_on]
-        }
-
     def __init__(
         self,
         name: str,
@@ -26,7 +16,7 @@ class CustomDockerImageSource(BaseSource):
         state: PublishedState = PublishedState.DEVELOPMENT,
         depends_on: Iterable[BaseSource] = None
     ):
-        super().__init__(name=name, state=state, depends_on=depends_on, data_lake=)
+        super().__init__(name=name, state=state, depends_on=depends_on, data_lake=None)
         self.docker_task = docker_task
         self._produced_data_tables = produced_tables
 
@@ -37,3 +27,13 @@ class CustomDockerImageSource(BaseSource):
     @property
     def docker_tasks(self) -> Iterable[DockerTask]:
         return [self.docker_task]
+
+    def to_dict(self) -> Dict[str, Union[str, Dict[str, str]]]:
+        return {
+            "name": self.name,
+            "docker_task": self.docker_task.to_dict(),
+            "produced_tables": [t.to_dict() for t in self.produced_data_tables],
+            "state": str(self.state),
+            "depends_on": [s.name for s in self.depends_on],
+            "type": type(self)
+        }

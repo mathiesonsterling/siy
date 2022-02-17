@@ -14,13 +14,13 @@ class BaseSource(ABC):
                  name: str,
                  data_lake: Optional[BaseDataLake] = None,
                  state: PublishedState = PublishedState.DEVELOPMENT,
-                 depends_on: Iterable["BaseSource"] = None):
+                 depends_on_names: Iterable[str] = None):
         self.name = name
         self.data_lake = data_lake
 
-        if not depends_on:
-            depends_on = []
-        self.depends_on = depends_on
+        if not depends_on_names:
+            depends_on_names = []
+        self.depends_on = depends_on_names
 
         self._state = state
 

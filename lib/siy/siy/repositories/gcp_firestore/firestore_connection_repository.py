@@ -1,4 +1,4 @@
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Dict, Any
 
 from google.cloud import firestore
 
@@ -9,6 +9,10 @@ from siy.repositories.connection_repository import BaseConnectionRepository
 class FirestoreConnectionRepository(BaseConnectionRepository):
     def __init__(self, project_id: str):
         self.db = firestore.Client(project=project_id)
+
+    def _hydrate_connection(self, dict_: Dict[str, Any]) -> Connection:
+        # hydrate the sources
+        # hydrate the destinations
 
     def get_all(self) -> Iterable[Connection]:
 
