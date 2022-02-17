@@ -1,0 +1,3 @@
+# flake8: noqa
+from siy.repositories.connection_repository import BaseConnectionRepository
+from siy.repositories.table_processed_message_repository import BaseTableProcessedMessageRepository
