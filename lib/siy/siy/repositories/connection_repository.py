@@ -13,6 +13,10 @@ class BaseConnectionRepository(ABC):
     def get(self, connection_name: str) -> Optional[Connection]:
         raise NotImplementedError()
 
+    @abstractmethod
+    def get_those_with_destinations(self, destination_name: str) -> Iterable[Connection]:
+        raise NotImplementedError()
+
     def create(self, connection: Connection) -> Connection:
         raise NotImplementedError()
 
