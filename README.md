@@ -4,7 +4,7 @@ and augmentation being done with just domain experts and data scientist.  Unlike
 any technology that can be triggered by a Docker container.
 
 Siy means "si y", or Spanish for "yes and".  The basic philosophy of this system is that data should be placed in a 
-central lake, processed there, and the results returned to that same lake.  This allows modification and evolution of 
+central lake, processed there, and the results returned to that same lake in a new table/object.  This allows modification and evolution of 
 data pipelines over time, instead of having to constantly reconfigure and redevelop data pipelines that are used to 
 feed ML and other processes.  Meanwhile, making this data available to the outside world is done easily through configurable Destinations,
 which can automatically generate such common methods as REST API, GraphQL, Snowflake, and Looker dashboards out of the box.
