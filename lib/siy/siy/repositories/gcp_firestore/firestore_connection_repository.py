@@ -1,4 +1,4 @@
-from typing import Iterable, Optional, Dict, Any
+from typing import Iterable, Optional
 
 from google.cloud import firestore
 
