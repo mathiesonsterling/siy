@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, Dict, Union
 
 from siy.entities.sources.base_source import BaseSource
 from siy.entities.data_lakes import BaseDataLake, BigQueryDataLake
@@ -50,3 +50,13 @@ class DBTSource(BaseSource):
             name=self.name,
             env_vars=env_vars
         )
+
+    def to_dict(self) -> Dict[str, Union[str, Dict[str, str]]]:
+        return {
+            "name": self.name,
+            "dbt_image_loc": str(self.dbt_image_loc),
+            "dbt_model_repo": str(self.dbt_model_repo),
+            "end_models": list(self.end_models),
+            "state": str(self.state),
+            "depends_on": [s.name for s in self.depends_on]
+        }

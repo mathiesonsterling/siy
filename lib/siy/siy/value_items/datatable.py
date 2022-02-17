@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import Dict
+from dataclasses import dataclass, asdict
+from typing import Dict, Any
 
 from siy.value_items.published_state import PublishedState
 
@@ -20,6 +20,10 @@ class BaseDataTable(ABC):
     @abstractmethod
     def str(self) -> str:
         pass
+
+    @abstractmethod
+    def to_dict(self) -> Dict[str, Any]:
+        raise NotImplementedError()
 
 
 @dataclass(frozen=True)
@@ -47,3 +51,6 @@ class BigQueryDataTable(BaseDataTable):
             dataset=parts[1],
             table_name=parts[2]
         )
+
+    def to_dict(self):
+        return asdict(self)

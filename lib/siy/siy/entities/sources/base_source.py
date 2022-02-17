@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Dict, Union
 from datetime import timedelta
 
 from siy.value_items import BaseDataTable, DockerTask, PublishedState
@@ -12,7 +12,7 @@ class BaseSource(ABC):
     """
     def __init__(self,
                  name: str,
-                 data_lake: BaseDataLake,
+                 data_lake: Optional[BaseDataLake] = None,
                  state: PublishedState = PublishedState.DEVELOPMENT,
                  depends_on: Iterable["BaseSource"] = None):
         self.name = name
@@ -40,4 +40,8 @@ class BaseSource(ABC):
     @abstractmethod
     @property
     def docker_tasks(self) -> Iterable[DockerTask]:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def to_dict(self) -> Dict[str, Union[str, Dict[str, str]]]:
         raise NotImplementedError()

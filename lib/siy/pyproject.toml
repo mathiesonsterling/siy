@@ -8,6 +8,7 @@ authors = ["Mathieson Sterling <mathieson.sterling@gmail.com>"]
 python = "^3.9"
 apache-airflow = "^2.2.3"
 apache-airflow-providers-cncf-kubernetes = "^3.0.2"
+google-cloud-firestore = "^2.3.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.0.1"
