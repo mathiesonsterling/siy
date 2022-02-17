@@ -14,9 +14,9 @@ class CustomDockerImageSource(BaseSource):
         docker_task: DockerTask,
         produced_tables: Iterable[BaseDataTable],
         state: PublishedState = PublishedState.DEVELOPMENT,
-        depends_on: Iterable[BaseSource] = None
+        depends_on_names: Iterable[str] = None
     ):
-        super().__init__(name=name, state=state, depends_on=depends_on, data_lake=None)
+        super().__init__(name=name, state=state, depends_on_names=depends_on_names, data_lake=None)
         self.docker_task = docker_task
         self._produced_data_tables = produced_tables
 

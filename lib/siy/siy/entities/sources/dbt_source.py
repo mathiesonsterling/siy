@@ -9,6 +9,7 @@ class DBTSource(BaseSource):
     """
     Source for running DBT models to create more data!
     """
+
     def __init__(self,
                  name: str,
                  data_lake: BaseDataLake,
@@ -17,8 +18,8 @@ class DBTSource(BaseSource):
                  end_models: Iterable[str],
                  state: PublishedState = PublishedState.DEVELOPMENT,
                  depends_on_names: Iterable[str] = None
-    ):
-        super().__init__(state=state, depends_on=depends_on_names, name=name, data_lake=data_lake)
+                 ):
+        super().__init__(state=state, depends_on_names=depends_on_names, name=name, data_lake=data_lake)
         self.dbt_image_loc = dbt_image_loc
         self.dbt_model_repo = dbt_model_repo
         self.end_models = end_models
