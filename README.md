@@ -10,9 +10,9 @@ feed ML and other processes.  Meanwhile, making this data available to the outsi
 which can automatically generate such common methods as REST API, GraphQL, Snowflake, and Looker dashboards out of the box.
 
 This allows modification and evolution of data pipelines over time, instead of having to constantly reconfigure and redevelop data pipelines that are used to feed MLP and other processes.
-[YesAndModel.pdf](https://github.com/mathiesonsterling/siy/files/8091949/YesAndModel.pdf)
+![Yes, and_ model - User Control](https://user-images.githubusercontent.com/3457836/154697220-12359616-d198-41a2-bb10-ace448415deb.png)
+![Yes, and_ model - Basic Data Flow](https://user-images.githubusercontent.com/3457836/154697228-46adb2a3-2265-4d36-b8cd-f9ae5d8dae1a.png)
 
-[user_control.pdf](https://github.com/mathiesonsterling/siy/files/8091950/user_control.pdf)
 
 #Usage
 ## Platform choice
