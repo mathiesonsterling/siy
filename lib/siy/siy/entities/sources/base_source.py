@@ -2,8 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Iterable, Optional, Dict, Union
 from datetime import timedelta
 
-from siy.value_items import BaseDataTable, DockerTask, PublishedState
+from siy.value_items import DockerTask, PublishedState
 from siy.entities.data_lakes import BaseDataLake
+from siy.entities.data_table import BaseDataTable
 
 
 class BaseSource(ABC):

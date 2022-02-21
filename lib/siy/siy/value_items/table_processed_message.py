@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from siy.value_items.datatable import BaseDataTable
+from siy.entities.data_table import BaseDataTable
 
 
 @dataclass(frozen=True, eq=True)
