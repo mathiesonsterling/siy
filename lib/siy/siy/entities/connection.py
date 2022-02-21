@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from siy.entities.sources.base_source import BaseSource
 from siy.entities.destinations.base_destination import BaseDestination
-from siy.value_items import BaseDataTable
+from siy.entities.data_table import BaseDataTable
 
 
 @dataclass(eq=True, frozen=True)

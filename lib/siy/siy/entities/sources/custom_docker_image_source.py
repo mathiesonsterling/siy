@@ -1,7 +1,8 @@
 from typing import Iterable
 
 from siy.entities.sources.base_source import BaseSource
-from siy.value_items import DockerTask, BaseDataTable, URL, PublishedState
+from siy.value_items import DockerTask, PublishedState
+from siy.entities.data_table import BaseDataTable
 
 
 class CustomDockerImageSource(BaseSource):

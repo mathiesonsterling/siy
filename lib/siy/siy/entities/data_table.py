@@ -3,19 +3,34 @@ from dataclasses import dataclass
 from typing import Dict
 
 from siy.value_items.published_state import PublishedState
+from siy.value_items.data_version import DataVersion
 
 
 class BaseDataTable(ABC):
-    def __init__(self, state: PublishedState = PublishedState.DEVELOPMENT):
+    def __init__(self, state: PublishedState = PublishedState.DEVELOPMENT, data_version: DataVersion = None):
         self._state = state
+
+        if not data_version:
+            data_version = DataVersion(value="v1")
+        self._data_version = data_version
+
+    @abstractmethod
+    @property
+    def id(self) -> str:
+        raise NotImplementedError()
 
     @property
     def state(self) -> PublishedState:
         return self._state
 
-    @abstractmethod
+    @property
+    def data_version(self) -> DataVersion:
+        return self._data_version
+
     def __eq__(self, other: "DataTable") -> bool:
-        pass
+        if not isinstance(other, BaseDataTable):
+            raise ValueError("Can only equate data tables!")
+        return self.id == other.id
 
     @abstractmethod
     def str(self) -> str:
@@ -28,11 +43,8 @@ class BigQueryDataTable(BaseDataTable):
     dataset: str
     table_name: str
 
-    def __eq__(self, other: "DataTable") -> bool:
-        if not isinstance(other, BigQueryDataTable):
-            return False
-
-        return self.project_id == other.project_id and self.dataset == other.dataset and self.table_name == other.table_name
+    def id(self) -> str:
+        return str(self)
 
     def str(self) -> str:
         return f"{self.project_id}.{self.dataset}.{self.table_name}"

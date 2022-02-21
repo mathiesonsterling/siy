@@ -2,7 +2,8 @@ from typing import Iterable
 
 from siy.entities.sources.base_source import BaseSource
 from siy.entities.data_lakes import BaseDataLake, BigQueryDataLake
-from siy.value_items import DockerTask, BaseDataTable, PublishedState, BigQueryDataTable, URL
+from siy.value_items import DockerTask, PublishedState, URL
+from siy.entities.data_table import BaseDataTable, BigQueryDataTable
 
 
 class DBTSource(BaseSource):
