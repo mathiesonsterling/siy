@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, Dict, Union
 
 from siy.entities.sources.base_source import BaseSource
 from siy.entities.data_lakes import BaseDataLake, BigQueryDataLake
@@ -10,6 +10,7 @@ class DBTSource(BaseSource):
     """
     Source for running DBT models to create more data!
     """
+
     def __init__(self,
                  name: str,
                  data_lake: BaseDataLake,
@@ -17,9 +18,9 @@ class DBTSource(BaseSource):
                  dbt_model_repo: URL,
                  end_models: Iterable[str],
                  state: PublishedState = PublishedState.DEVELOPMENT,
-                 depends_on: Iterable["BaseSource"] = None
-    ):
-        super().__init__(state=state, depends_on=depends_on, name=name, data_lake=data_lake)
+                 depends_on_names: Iterable[str] = None
+                 ):
+        super().__init__(state=state, depends_on_names=depends_on_names, name=name, data_lake=data_lake)
         self.dbt_image_loc = dbt_image_loc
         self.dbt_model_repo = dbt_model_repo
         self.end_models = end_models
@@ -51,3 +52,14 @@ class DBTSource(BaseSource):
             name=self.name,
             env_vars=env_vars
         )
+
+    def to_dict(self) -> Dict[str, Union[str, Dict[str, str]]]:
+        return {
+            "name": self.name,
+            "dbt_image_loc": str(self.dbt_image_loc),
+            "dbt_model_repo": str(self.dbt_model_repo),
+            "end_models": list(self.end_models),
+            "state": str(self.state),
+            "depends_on": [s.name for s in self.depends_on],
+            "type": type(self)
+        }
