@@ -1,13 +1,14 @@
 from typing import Iterable, Optional, Tuple
 
 from airflow import DAG
+from airflow.providers.airbyte.operators.airbyte import AirbyteTriggerSyncOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.operators.python import PythonOperator
 from kubernetes.client.models.v1_env_var import V1EnvVar
 
-from siy.entities import Connection, BaseDataLake
-from siy.value_items import DockerTask, TableProcessedMessage, BigQueryDataTable
+from siy.entities import Connection, BaseDataLake, BigQueryDataTable, AirbyteIngestSource, BaseSource
+from siy.value_items import DockerTask, TableProcessedMessage, AirbyteConnectionInfo
 from siy.repositories import BaseTableProcessedMessageRepository
 
 
@@ -36,10 +37,14 @@ class AirflowWorkflowFactory:
     To use, create a single DAG an iterate over the connection with the create_dags method.
     Load each into the global namespace and you'll be all set!
     """
-    def __init__(self, data_lake: BaseDataLake, use_gke: bool = False, namespace: str = "default"):
+    def __init__(
+            self, data_lake: BaseDataLake, airbyte_connection_info: AirbyteConnectionInfo,
+            use_gke: bool = False, namespace: str = "default"
+    ):
         self.use_gke = use_gke
         self.namespace = namespace
         self.data_lake = data_lake
+        self.airbyte_connection_info = airbyte_connection_info
 
     def create_dags(self, connections: Iterable[Connection]) -> Iterable[DAG]:
         all_sources = [source for con in connections for source in con.sources]
@@ -80,9 +85,10 @@ class AirflowWorkflowFactory:
         task_ends = {}
         for source in start_task_chains:
             if len(list(source.depends_on)) == 0:
+                tasks = self._get_tasks_for_source(source)
+
                 previous_task: Optional[KubernetesPodOperator] = None
-                for task in source.docker_tasks:
-                    airflow_task = self._make_kubernetes_task_for_docker_image(task)
+                for airflow_task in tasks:
                     dag.add_task(airflow_task)
                     if previous_task:
                         airflow_task.set_upstream(previous_task)
@@ -91,9 +97,10 @@ class AirflowWorkflowFactory:
 
         for source in connection.sources:
             if source not in start_task_chains:
-                previous_task = Optional[KubernetesPodOperator] = None
-                for task in source.docker_tasks:
-                    airflow_task = self._make_kubernetes_task_for_docker_image(task)
+                tasks = self._get_tasks_for_source(source)
+
+                previous_task: Optional[KubernetesPodOperator] = None
+                for airflow_task in tasks:
                     dag.add_task(airflow_task)
                     if previous_task:
                         previous_task.set_downstream(airflow_task)
@@ -115,6 +122,19 @@ class AirflowWorkflowFactory:
     @staticmethod
     def _clean_name_for_airflow(name: str) -> str:
         return name.lower().replace("-", "_")
+
+    def _get_tasks_for_source(self, source: BaseSource):
+        if isinstance(source, AirbyteIngestSource):
+            return [self._make_airbytes_task_for_source(source)]
+        else:
+            return [self._make_kubernetes_task_for_docker_image(t) for t in source.docker_tasks]
+
+    def _make_airbytes_task_for_source(self, source: AirbyteIngestSource) -> AirbyteTriggerSyncOperator:
+        return AirbyteTriggerSyncOperator(
+            task_id=source.name,
+            airbyte_conn_id=self.airbyte_connection_info.airbyte_conn_id,
+            connection_id=self.airbyte_connection_info.airflow_conn_id
+        )
 
     def _make_kubernetes_task_for_docker_image(self, docker_task: DockerTask) -> KubernetesPodOperator:
         if self.use_gke:
