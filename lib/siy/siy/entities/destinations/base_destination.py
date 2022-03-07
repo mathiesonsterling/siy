@@ -22,3 +22,7 @@ class BaseDestination(ABC):
     @property
     def update_frequency(self) -> Optional[timedelta]:
         return None
+
+    @abstractmethod
+    def to_dict(self):
+        raise NotImplementedError()

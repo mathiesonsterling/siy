@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field
-from typing import Dict
+from dataclasses import dataclass, field, asdict
+from typing import Dict, Union
 
 from siy.value_items.url import URL
 
@@ -12,3 +12,6 @@ class DockerTask:
     image_location: URL
     name: str
     env_vars: Dict[str, str] = field(default_factory={})
+
+    def to_dict(self) -> Dict[str, Union[str, Dict[str, str]]]:
+        return asdict(self)

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Dict, Any
 from datetime import timedelta
 
 from siy.entities.sources.base_source import BaseSource
@@ -25,3 +25,10 @@ class Connection:
         if len(updating_sources) == 0:
             return None
         return min(updating_sources)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "sources": [s.to_dict() for s in self.sources],
+            "destinations": [d.to_dict() for d in self.destinations]
+        }
