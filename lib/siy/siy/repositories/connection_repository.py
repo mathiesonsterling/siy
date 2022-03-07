@@ -13,9 +13,11 @@ class BaseConnectionRepository(ABC):
     def get(self, connection_name: str) -> Optional[Connection]:
         raise NotImplementedError()
 
-    @abstractmethod
     def get_all_with_destination(self, destination_name: str) -> Iterable[Connection]:
-        raise NotImplementedError()
+        for c in self.get_all():
+            destination_names = [d.name for d in c.destinations]
+            if destination_name in destination_names:
+                yield c
 
     def create(self, connection: Connection) -> Connection:
         raise NotImplementedError()
@@ -36,12 +38,6 @@ class MemoryConnectionRepository(BaseConnectionRepository):
 
     def get_all(self) -> Iterable[Connection]:
         return self._items.values()
-
-    def get_all_with_destination(self, destination_name: str) -> Iterable[Connection]:
-        for c in self.get_all():
-            destination_names = [d.name for d in c.destinations]
-            if destination_name in destination_names:
-                yield c
 
     def get(self, connection_name: str) -> Optional[Connection]:
         if connection_name in self._items:
