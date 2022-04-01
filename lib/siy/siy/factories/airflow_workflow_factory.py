@@ -131,7 +131,7 @@ class AirflowWorkflowFactory:
 
     def _make_airbytes_task_for_source(self, source: AirbyteIngestSource) -> AirbyteTriggerSyncOperator:
         return AirbyteTriggerSyncOperator(
-            task_id=source.name,
+            task_id= self._clean_name_for_airflow(source.name),
             airbyte_conn_id=self.airbyte_connection_info.airbyte_conn_id,
             connection_id=self.airbyte_connection_info.airflow_conn_id
         )
